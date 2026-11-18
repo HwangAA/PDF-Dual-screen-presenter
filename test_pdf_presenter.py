@@ -763,7 +763,7 @@ class PresenterTests(unittest.TestCase):
         self.wait_for(lambda: not w.jobs)
         self.assertEqual(w.current_page, 1)
 
-    def test_splitter_keyboard_and_drag_resizing(self):
+    def test_splitter_mouse_only_resizing(self):
         from PyQt5.QtTest import QTest
         from PyQt5.QtCore import QPoint, QPointF, QEvent
         from PyQt5.QtGui import QMouseEvent
@@ -772,10 +772,7 @@ class PresenterTests(unittest.TestCase):
         for splitter in [w.stage_splitter, w.workspace_splitter]:
             handle = splitter.handle(1)
             before = splitter.sizes()
-            key = Qt.Key_Left if splitter.orientation() == Qt.Horizontal else Qt.Key_Up
-            QTest.keyClick(handle, key)
-            self.assertNotEqual(splitter.sizes(), before)
-            before = splitter.sizes()
+            self.assertEqual(handle.focusPolicy(), Qt.NoFocus)
             point = handle.rect().center()
             offset = QPoint(-40, 0) if splitter.orientation() == Qt.Horizontal else QPoint(0, -40)
             QTest.mousePress(handle, Qt.LeftButton, pos=point)
@@ -887,12 +884,18 @@ class PresenterTests(unittest.TestCase):
             self.assertEqual(splitter.sizes(), after)
             QTest.keyClick(self.app.focusWidget(), Qt.Key_Left)
             self.wait_for(lambda: w.current_page == 0 and not w.jobs)
-            # Deliberate keyboard focus still allows accessible resizing.
-            handle.setFocus(Qt.TabFocusReason)
-            key = Qt.Key_Left if splitter.orientation() == Qt.Horizontal else Qt.Key_Up
-            QTest.keyClick(handle, key)
-            self.assertNotEqual(splitter.sizes(), after)
-            self.assertEqual(w.current_page, 0)
+            # Even a restored/programmatic focus must never consume arrows.
+            handle.setFocus(Qt.OtherFocusReason)
+            for key, expected in ((Qt.Key_Right, 1), (Qt.Key_Left, 0),
+                                  (Qt.Key_Down, 1), (Qt.Key_Up, 0)):
+                QTest.keyClick(self.app.focusWidget(), key)
+                self.wait_for(lambda: w.current_page == expected and not w.jobs)
+                self.assertEqual(splitter.sizes(), after)
+            w.setFocus()
+            for _ in range(20):
+                QTest.keyClick(self.app.focusWidget(), Qt.Key_Tab)
+                self.assertIsNot(self.app.focusWidget(), handle)
+
 
     def test_touch_controls_grow_and_shrink_with_dock(self):
         from PyQt5.QtTest import QTest
@@ -965,7 +968,7 @@ class PresenterTests(unittest.TestCase):
         self.assertAlmostEqual(edit.focusGlow, level)
         edit.anim.setCurrentTime(edit.anim.duration())
         self.assertEqual(edit.focusGlow, 0.0)
-        self.assertEqual(self.window.version_label.text(), 'ver 2.5')
+        self.assertEqual(self.window.version_label.text(), 'ver 2.5.1')
         with patch('presenter_ui.QDesktopServices.openUrl') as open_url:
             self.window.version_label.click()
             self.assertEqual(open_url.call_args.args[0].toString(), 'https://github.com/HwangAA/PDF-Presenter-Tools')

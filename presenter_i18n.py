@@ -40,7 +40,7 @@ UP NEXT|UP NEXT|次|下一页
 다른 모니터: 전체 화면 / 같은 모니터: 창 모드|Other display: full screen / same display: windowed|別のモニター：全画面／同じモニター：ウィンドウ表示|其他显示器：全屏 / 同一显示器：窗口模式
 자동 선택 (발표자 화면과 다른 모니터)|Automatic (prefer another display)|自動選択（操作画面と別のモニターを優先）|自动选择（优先使用其他显示器）
 영역 크기 조절|Resize panels|領域のサイズを変更|调整区域大小
-드래그하여 크기 조절 · 방향키로도 조절할 수 있습니다.|Drag to resize, or use the arrow keys when focused.|ドラッグ、または選択して矢印キーでサイズを変更します。|拖动调整大小，或选中后使用方向键。
+드래그하여 크기를 조절합니다.|Drag to resize.|ドラッグしてサイズを変更します。|拖动调整大小。
 현재 화면과 다음 페이지 비율 조절|Adjust current and next page widths|現在と次のページの幅を調整|调整当前页和下一页的宽度
 슬라이드와 페이지 조작 영역 높이 조절|Adjust slide and navigation panel heights|スライドと操作領域の高さを調整|调整幻灯片和翻页区域的高度
 페이지 번호 입력 후 Enter · Esc 또는 여백 클릭으로 취소|Enter a page number and press Enter. Press Esc or click outside to cancel.|ページ番号を入力して Enter。Esc または余白をクリックしてキャンセル。|输入页码后按 Enter；按 Esc 或点击空白处取消。

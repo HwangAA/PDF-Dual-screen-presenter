@@ -2,7 +2,7 @@
 from presenter_i18n import LANGUAGES
 from pathlib import Path
 import re
-from PyQt5.QtCore import QUrl, Qt, QEvent, QTimer
+from PyQt5.QtCore import QUrl, Qt, QTimer
 from PyQt5.QtWidgets import (QWidget, QLabel, QPushButton, QVBoxLayout, QHBoxLayout,
                              QSizePolicy, QMenu, QProgressBar, QSplitter, QSplitterHandle, QLayout, QActionGroup)
 from PyQt5.QtGui import QDesktopServices, QIntValidator, QColor, QPalette, QPainter, QPen
@@ -11,23 +11,15 @@ from PyQt5.QtGui import QDesktopServices, QIntValidator, QColor, QPalette, QPain
 class ResizeHandle(QSplitterHandle):
     def __init__(self, orientation, parent):
         super().__init__(orientation, parent)
-        self.setFocusPolicy(Qt.StrongFocus)
+        self.setFocusPolicy(Qt.NoFocus)
         self.setAccessibleName('영역 크기 조절')
-        self.setToolTip('드래그하여 크기 조절 · 방향키로도 조절할 수 있습니다.')
+        self.setToolTip('드래그하여 크기를 조절합니다.')
         self.setCursor(Qt.SplitHCursor if orientation == Qt.Horizontal else Qt.SplitVCursor)
-
-    def event(self, event):
-        keys = (Qt.Key_Left, Qt.Key_Right) if self.orientation() == Qt.Horizontal else (Qt.Key_Up, Qt.Key_Down)
-        if event.type() == QEvent.ShortcutOverride and event.key() in keys:
-            event.accept()
-            return True
-        return super().event(event)
 
     def mouseReleaseEvent(self, event):
         super().mouseReleaseEvent(event)
         if event.button() == Qt.LeftButton:
-            # Dragging is complete: restore presentation shortcuts. Keyboard
-            # users can still focus the handle with Tab to resize with arrows.
+            # Dragging is complete: restore presentation shortcuts.
             self.window().setFocus(Qt.MouseFocusReason)
 
     def paintEvent(self, event):
@@ -40,18 +32,6 @@ class ResizeHandle(QSplitterHandle):
         else:
             painter.drawLine(c.x()-20, c.y(), c.x()+20, c.y())
         painter.end()
-
-    def keyPressEvent(self, event):
-        keys = (Qt.Key_Left, Qt.Key_Right) if self.orientation() == Qt.Horizontal else (Qt.Key_Up, Qt.Key_Down)
-        if event.key() in keys:
-            sizes = self.splitter().sizes()
-            delta = -24 if event.key() == keys[0] else 24
-            self.splitter().setSizes([max(1, sizes[0]+delta), max(1, sizes[1]-delta)])
-            self.splitter().splitterMoved.emit(self.splitter().sizes()[0], 1)
-            event.accept()
-        else:
-            super().keyPressEvent(event)
-
 
 class AdjustableSplitter(QSplitter):
     def __init__(self, orientation):
@@ -349,10 +329,10 @@ def build_ui(window, PageEdit):
     mail.setAlignment(Qt.AlignRight)
     window.contact_label = mail
     credits.addWidget(mail)
-    window.version_label = QPushButton('ver 2.5')
+    window.version_label = QPushButton('ver 2.5.1')
     window.version_label.setCursor(Qt.PointingHandCursor)
     window.version_label.setToolTip('GitHub: HwangAA/PDF-Presenter-Tools')
-    window.version_label.setAccessibleName('ver 2.5 · GitHub')
+    window.version_label.setAccessibleName('ver 2.5.1 · GitHub')
     window.version_label.setStyleSheet('QPushButton {background: transparent; color: #9AA8B8; font-size: 10px; padding: 1px 2px; border: 1px solid transparent;} QPushButton:hover {color: #D5E7FF;} QPushButton:focus {border: 1px dashed #B8C9DD;}')
     window.version_label.clicked.connect(lambda: QDesktopServices.openUrl(QUrl('https://github.com/HwangAA/PDF-Presenter-Tools')))
     version_row = QHBoxLayout()
@@ -394,7 +374,7 @@ def translate_controls(w):
     w.workspace_splitter.setAccessibleName(t('슬라이드와 페이지 조작 영역 높이 조절'))
     for handle in w.findChildren(ResizeHandle):
         handle.setAccessibleName(t('영역 크기 조절'))
-        handle.setToolTip(t('드래그하여 크기 조절 · 방향키로도 조절할 수 있습니다.'))
+        handle.setToolTip(t('드래그하여 크기를 조절합니다.'))
     w.key_hint.setText(t('← ↑ 이전    → ↓ 다음    ·    번호 입력 후 Enter로 이동'))
     w.contact_label.setText(t('개발 & 문의') + '  freeballooning@gmail.com')
     if w.pdf_doc is None:
